@@ -1,0 +1,30 @@
+{
+	"name": "querofilmes",
+	"version": "1.0.0",
+	"description": "Um utilitário que procura e baixa filmes por meio torrent organizadamente maratonas",
+	"main": "index.js",
+	"scripts": {
+		"start": "tsc -w index.ts",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+ssh://git@github.com/icaroglauco-lab/querofilmes.git"
+	},
+	"author": "Ícaro Glauco de Oliveira",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/icaroglauco-lab/querofilmes/issues"
+	},
+	"homepage": "https://github.com/icaroglauco-lab/querofilmes#readme",
+	"dependencies": {
+		"inquirer": "^8.1.2",
+		"magnet-uri": "^6.2.0",
+		"torrent-search-api": "^2.1.4",
+		"webtorrent-cli": "^3.5.4",
+		"yargs": "^17.1.0"
+	},
+	"devDependencies": {
+		"@types/node": "^16.4.14"
+	}
+}
