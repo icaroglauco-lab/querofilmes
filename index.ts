@@ -29,44 +29,48 @@ type Torrent = {
 
 // Parse multiple movie names into separeted quee function lines
 function parseMain() {
-	let { titulo, filmes, para } = argv;
+	let { titulo, filmes, para, lista } = argv;
 	let titles = filmes.split(",");
 	
 	if(!fs.existsSync(para)){
 		fs.mkdirSync(para);
 	}
 
-	Promise.all(searchMovieWithTitles(titulo, titles, 5)).then(
-		(TorrentResults: Array<any>) => {
-			const promptStructure = titles.map((subTitle, i) => ({
+	Promise.all(searchMovieWithTitles(titulo, titles, lista)).then(
+		processFinishedSearchResults(titulo, titles, para)
+	);
+}
+
+const processFinishedSearchResults = (movieName, movieTitlesArr, destinationPath) => (TorrentResults: Array<any>) => {
+			const promptStructure = movieTitlesArr.map((subTitle, i) => ({
 				type: "checkbox",
-				name: `${titulo} ${subTitle}`,
-				message: `Which titles from ${titulo} ${subTitle} do you want to download?`,
+				name: `${movieName} ${subTitle}`,
+				message: `Which titles from ${movieName} ${subTitle} do you want to download?`,
 				choices: TorrentResults[i].map(
-					(result) => result.title
+					(result) => (`${result.title}-(S:${result.seeds};P${result.peers})`)
 				),
 			}));
 
-			inquirer.prompt(promptStructure).then((results) => {
-					const processedMovieChoices = Object.keys(results).map(
-						(resultPromptKey, keyIndex) => {
-							return {
-								id: resultPromptKey,
-								"movie files": results[
-									resultPromptKey
-								].map((movieTitle) =>
-										TorrentResults[
-											keyIndex
-										].find( (d) => d.title === movieTitle )
-									),
-							};
-						}
-					);
-					queeUpToDownload(processedMovieChoices, para);
-			});
-		}
-	);
-}
+			inquirer.prompt(promptStructure).then(processPromptChoices({destinationPath, TorrentResults}));
+		} 
+
+	const processPromptChoices = ({destinationPath, TorrentResults}) => (results) => {
+		 const processedMovieChoices = Object.keys(results).map(
+			 (resultPromptKey, keyIndex) => {
+				 return {
+					 id: resultPromptKey,
+					 "movie files": results[
+						 resultPromptKey
+					 ].map((choiceValue) =>
+							 TorrentResults[
+								 keyIndex
+							 ].find( (d) => choiceValue.includes(d.title) )
+						 ),
+				 };
+			 }
+		 );
+		 queeUpToDownload(processedMovieChoices, destinationPath);
+   }
 
 // Search based on argument filme
 const searchMovieWithTitles = (title, subTitles, n) => {
